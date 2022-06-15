@@ -38,8 +38,10 @@ fun main() {
     // Decrypt the message using 'secretKeyB'
     val decryptedPlainText: String = decrypt(secretKeyB, cipherText)
     println("Decrypted cipher text: $decryptedPlainText")
-
-
+    val secretAStr = String(Base64.encode(secretKeyA.encoded))
+    val secretBStr = String(Base64.encode(secretKeyB.encoded))
+    println("secret key A: $secretAStr")
+    println("secret key B: $secretBStr")
     val pubStr = String(Base64.encode(keyPairA.public.encoded))
     val prvStr = String(Base64.encode(keyPairA.private.encoded))
 
@@ -66,7 +68,7 @@ fun main() {
 fun generateECKeys(): KeyPair {
 
     val parameterSpec: ECNamedCurveParameterSpec =
-        ECNamedCurveTable.getParameterSpec("secp256r1")
+        ECNamedCurveTable.getParameterSpec("prime256v1")
     val keyPairGenerator: KeyPairGenerator = KeyPairGenerator.getInstance(
         "ECDH", "BC")
     keyPairGenerator.initialize(parameterSpec)
