@@ -1,5 +1,6 @@
 package com.example.end2endencryption.data.service
 
+import android.util.Log
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
@@ -7,11 +8,10 @@ import org.bouncycastle.util.encoders.Base64
 import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
-import javax.crypto.Cipher
-import javax.crypto.KeyAgreement
-import javax.crypto.SecretKey
+import javax.crypto.*
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+
 
 class SecurityService {
     private var iv: ByteArray= SecureRandom().generateSeed(12)// Nonce
@@ -23,12 +23,13 @@ class SecurityService {
     fun generateECKeys(): KeyPair {
         Security.addProvider(BouncyCastleProvider())
         val parameterSpec: ECNamedCurveParameterSpec =
-            ECNamedCurveTable.getParameterSpec("secp256r1")
+            ECNamedCurveTable.getParameterSpec("prime256v1")
         val keyPairGenerator: KeyPairGenerator = KeyPairGenerator.getInstance(
             "ECDH", BouncyCastleProvider())
         keyPairGenerator.initialize(parameterSpec)
-        return keyPairGenerator.generateKeyPair()
-
+        val pair =  keyPairGenerator.generateKeyPair()
+        Log.v("PublicKey", String(Base64.encode(pair.public.encoded)))
+        return  pair
     }
 
     fun encodeKey(key: ByteArray): String {
@@ -57,7 +58,7 @@ class SecurityService {
         publicKey: PublicKey?,
     ): SecretKey {
 
-        val keyAgreement: KeyAgreement = KeyAgreement.getInstance("ECDH", BouncyCastleProvider())
+        val keyAgreement: KeyAgreement = KeyAgreement.getInstance("ECDH" , BouncyCastleProvider())
         keyAgreement.init(privateKey)
         keyAgreement.doPhase(publicKey, true)
         val sharedSecret = keyAgreement.generateSecret("AES")

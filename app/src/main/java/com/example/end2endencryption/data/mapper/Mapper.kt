@@ -5,6 +5,6 @@ import com.example.end2endencryption.data.model.PublicKeyModel
 import com.example.end2endencryption.data.network.CheckSecretKeyResponseModel
 import com.example.end2endencryption.data.network.PublicKeyResponseModel
 
-fun PublicKeyResponseModel.toPublicKey(): PublicKeyModel = PublicKeyModel(status, publicKey)
+fun PublicKeyResponseModel.toPublicKey(): PublicKeyModel = PublicKeyModel(status, publicKey , publicKeySpkiB64,sharedKey,notHashedSecretKey)
 
 fun CheckSecretKeyResponseModel.toEncryptedData(): DecryptedDataModel = DecryptedDataModel(status, data)
