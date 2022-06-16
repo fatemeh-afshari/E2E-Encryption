@@ -42,6 +42,7 @@ fun main() {
     val secretBStr = String(Base64.encode(secretKeyB.encoded))
     println("secret key A: $secretAStr")
     println("secret key B: $secretBStr")
+    val last65BytePubStr = String(Base64.encode(keyPairA.public.encoded.copyOfRange(keyPairA.public.encoded.size-66 , keyPairA.public.encoded.size-1)))
     val pubStr = String(Base64.encode(keyPairA.public.encoded))
     val prvStr = String(Base64.encode(keyPairA.private.encoded))
 
@@ -57,6 +58,7 @@ fun main() {
 
     println("-------------------TEST ENCODE & DECODE KEYS--------------------")
     println("public key A: ${keyPairA.public}")
+    println("last 65 byte of public key A: $last65BytePubStr")
     println("encoded public key A: $pubStr")
     println("decoded public key A: $pubKeyA")
 

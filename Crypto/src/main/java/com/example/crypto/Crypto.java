@@ -1,6 +1,7 @@
 package com.example.crypto;
 
 
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -33,11 +34,10 @@ public class Crypto {
             testCrypto.generateServerKeyPair();
 //             SecretKey sharedKey = testCrypto.setMibPublicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAER5ptsNnY5LozRM9TeDH2KamDNHHGMgTfjN+NchU/KQzEch+/pU7Lhq5BvPlKiexQ/4PBlYQvq2xcYgKqFI+R4A==");
             SecretKey sharedKey = testCrypto.setMibPublicKey("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE6zkVzp6x1/kY3ifTj4uiPXWSHcrubJAhsWJLhW31lSaq1jz0MuCR8rcR1Zh550zGT5k/B4G69QLtnj5LMdkHiQ==");
-
             String key = "dusneD0s+7hPg57yJGBfuGrj3m8sCg9g4VbBZOuTTHQ=";
             byte[] keyDecoded = Base64.getDecoder().decode(key);
             System.out.println("fucked up: " + keyDecoded);
-            SecretKeySpec keySpec = new SecretKeySpec(keyDecoded, "SHA256");
+            SecretKeySpec keySpec = new SecretKeySpec(keyDecoded, "AES");
             String sharedKey2 = new String(Base64.getEncoder().encode(keySpec.getEncoded()));
 
             System.out.println("SharedKey2: " + sharedKey2);
@@ -58,7 +58,18 @@ public class Crypto {
     }
 
     public void generateServerKeyPair() {
-        serverKeyPair = genDHKeyPair();
+        try {
+            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEX7TUlAA7QwSy4t8Dt2z6uunQHMUNKsrbeips29q0PuQABd22hxXkjVaMXNZtdi8Wfq77BBrGD1h8176oDIlK5A=="));
+            PKCS8EncodedKeySpec privateKeySpac = new PKCS8EncodedKeySpec(Base64.getDecoder().decode("MEECAQAwEwYHKoZIzj0CAQYIKoZIzj0DAQcEJzAlAgEBBCCLxmCRVUrAYJbKZr9IGL66F1xOfqA7PyxTgdKyTTa0CA=="));
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            PublicKey pub = keyFactory.generatePublic(keySpec);
+            PrivateKey priv = keyFactory.generatePrivate(privateKeySpac);
+            KeyPair pair = new KeyPair(pub, priv);
+            //serverKeyPair = genDHKeyPair();
+            serverKeyPair = pair;
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     public String getPublicKey() {
@@ -153,14 +164,16 @@ public class Crypto {
     public KeyPair genDHKeyPair() {
         try {
             kpg = KeyPairGenerator.getInstance("EC");
-            ECGenParameterSpec ecsp = new ECGenParameterSpec("secp256r1");
+            ECGenParameterSpec ecsp = new ECGenParameterSpec("prime256v1");
             kpg.initialize(ecsp);
         } catch (NoSuchAlgorithmException e) {
             System.out.println(e.getMessage());
         } catch (InvalidAlgorithmParameterException e) {
             System.out.println(e.getMessage());
         }
-
-        return kpg.genKeyPair();
+        KeyPair pair = kpg.genKeyPair();
+        System.out.println("PUBLIC KEY: " + new String(Base64.getEncoder().encode(pair.getPublic().getEncoded())));
+        System.out.println("PRIVATE KEY: " + new String(Base64.getEncoder().encode(pair.getPrivate().getEncoded())));
+        return pair;
     }
 }
