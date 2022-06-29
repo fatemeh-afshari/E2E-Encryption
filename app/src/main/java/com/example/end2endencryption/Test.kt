@@ -1,9 +1,12 @@
 package com.example.end2endencryption
 
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec
+import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.util.encoders.Base64
+import java.io.StringReader
 import java.security.*
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
@@ -46,15 +49,21 @@ fun main() {
     val pubStr = String(Base64.encode(keyPairA.public.encoded))
     val prvStr = String(Base64.encode(keyPairA.private.encoded))
 
+    val pemParser = PEMParser(StringReader("BMZI3HpgSBd6cHf+IfsQPw/NrpMioqNHOVJrKtci++rvWzYpdYwN+TftwTBhJFpPaigCNHekNuZrHKWPIMcL4YU="))
+    val spki = pemParser.readObject() as SubjectPublicKeyInfo
+    pemParser.close()
+    val spkiEncoded = spki.encoded
     val kf = KeyFactory.getInstance("ECDH", "BC")
 
     val x509ks = X509EncodedKeySpec(
-        Base64.decode(pubStr))
+        Base64.decode(spkiEncoded))
     val pubKeyA = kf.generatePublic(x509ks)
 
     val p8ks = PKCS8EncodedKeySpec(
         Base64.decode(prvStr))
     val privKeyA = kf.generatePrivate(p8ks)
+
+
 
     println("-------------------TEST ENCODE & DECODE KEYS--------------------")
     println("public key A: ${keyPairA.public}")
@@ -70,7 +79,7 @@ fun main() {
 fun generateECKeys(): KeyPair {
 
     val parameterSpec: ECNamedCurveParameterSpec =
-        ECNamedCurveTable.getParameterSpec("prime256v1")
+        ECNamedCurveTable.getParameterSpec("secp256k1")
     val keyPairGenerator: KeyPairGenerator = KeyPairGenerator.getInstance(
         "ECDH", "BC")
     keyPairGenerator.initialize(parameterSpec)
@@ -113,7 +122,11 @@ fun decrypt(key: SecretKey, cipherText: String): String {
         cipherTextBytes.size, plainText, 0)
     decryptLength += cipher.doFinal(plainText, decryptLength)
     return String(plainText, charset("UTF-8"))
+
+
+
 }
+
 
 
 

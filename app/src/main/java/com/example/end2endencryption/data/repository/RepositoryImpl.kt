@@ -29,7 +29,7 @@ class RepositoryImpl @Inject constructor(
                 PublicKeyRequestBodyModel(securityService.encodeKey(keyPair.public.encoded))
             )
             Log.v("TEST", response.toString())
-            Log.v("PUBLIC", "${securityService.encodeKey(keyPair.public.encoded)}")
+            Log.v("PUBLIC", securityService.encodeKey(keyPair.public.encoded))
 
             if (response.isSuccessful) {
                 response.body()?.let {

@@ -15,12 +15,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.End2EndEncryption"
         tools:targetApi="31"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="false">
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.End2EndEncryption">
+            android:theme="@style/Theme.End2EndEncryption"
+            android:hardwareAccelerated="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
