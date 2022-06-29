@@ -1,5 +1,6 @@
 package com.example.end2endencryption.presentation
 
+import android.graphics.BlurMaskFilter
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -139,7 +140,7 @@ fun CustomProgressbar(initialValue: Float , targetValue:Float) {
                         modifier = Modifier
                             .fillMaxWidth(progress.value)
                             .height(4.dp)
-                            .advancedShadow()
+                            .advanceShadow(color = Color.Green)
                             .clip(RoundedCornerShape(16.dp))
                             .background(brush = horizontalGradientBrush)
 
@@ -166,39 +167,41 @@ fun Loading() {
     }
 }
 
-fun Modifier.advancedShadow(
+ fun Modifier.advanceShadow(
     color: Color = Color.Black,
-    alpha: Float = 1f,
-    cornersRadius: Dp = 20.dp,
-    shadowBlurRadius: Dp = 10.dp,
-    offsetY: Dp = (0).dp,
-    offsetX: Dp = 0.dp
+    borderRadius: Dp = 12.dp,
+    blurRadius: Dp = 10.dp,
+    offsetY: Dp = 0.dp,
+    offsetX: Dp = 0.dp,
+    spread: Float = 1f,
 ) = drawBehind {
+        this.drawIntoCanvas {
+            val paint = Paint()
+            val frameworkPaint = paint.asFrameworkPaint()
+            val spreadPixel = spread.dp.toPx()
+            val leftPixel = (0f - spreadPixel) + offsetX.toPx()
+            val topPixel = (0f - spreadPixel) + offsetY.toPx()
+            val rightPixel = (this.size.width + spreadPixel)
+            val bottomPixel =  (this.size.height + spreadPixel)
 
-    val shadowColor = color.copy(alpha = alpha).toArgb()
-    val transparentColor = color.copy(alpha = 0f).toArgb()
+            if (blurRadius != 0.dp) {
+                /*
+                    The feature maskFilter used below to apply the blur effect only works
+                    with hardware acceleration disabled.
+                 */
+                frameworkPaint.maskFilter =
+                    (BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.NORMAL))
+            }
 
-    drawIntoCanvas {
-        val paint = Paint()
-        val frameworkPaint = paint.asFrameworkPaint()
-        frameworkPaint.color = transparentColor
-        frameworkPaint.setShadowLayer(
-            shadowBlurRadius.toPx(),
-            offsetX.toPx(),
-            offsetY.toPx(),
-            shadowColor
-        )
-        it.drawRoundRect(
-            0f,
-            0f,
-            this.size.width,
-            this.size.height,
-            cornersRadius.toPx(),
-            cornersRadius.toPx(),
-            paint
-        )
+            frameworkPaint.color = color.toArgb()
+            it.drawRoundRect(
+                left = leftPixel,
+                top = topPixel,
+                right = rightPixel,
+                bottom = bottomPixel,
+                radiusX = borderRadius.toPx(),
+                radiusY = borderRadius.toPx(),
+                paint
+            )
+        }
     }
-
-
-
-}
